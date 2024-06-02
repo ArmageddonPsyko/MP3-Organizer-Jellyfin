@@ -121,21 +121,27 @@ namespace MP3_Organizer
             // Update Performers
             if (track.Tag.Performers.Length > 0)
             {
-                string performers = string.Join(",", track.Tag.Performers);
-                if (performers.Contains(","))
+                string[] performers = track.Tag.Performers;
+                for (int i = 0; i < performers.Length; i++)
                 {
-                    track.Tag.Performers = performers.Replace(",", ";").Split(';');
-                    hasChanges = true;
+                    string correctedPerformer = CorrectSemicolonSpacing(performers[i]);
+                    if (performers[i] != correctedPerformer)
+                    {
+                        performers[i] = correctedPerformer;
+                        hasChanges = true;
+                    }
                 }
+                track.Tag.Performers = performers;
             }
 
             // Update Album Artist
             if (track.Tag.FirstAlbumArtist != null)
             {
                 string albumArtist = track.Tag.FirstAlbumArtist;
-                if (albumArtist.Contains(","))
+                string correctedAlbumArtist = CorrectSemicolonSpacing(albumArtist);
+                if (albumArtist != correctedAlbumArtist)
                 {
-                    track.Tag.AlbumArtists = new string[] { albumArtist.Replace(",", ";") };
+                    track.Tag.AlbumArtists = new string[] { correctedAlbumArtist };
                     hasChanges = true;
                 }
             }
@@ -143,10 +149,16 @@ namespace MP3_Organizer
             if (hasChanges)
             {
                 track.Save();
-                Console.WriteLine($"Updated metadata: {trackPath}");
             }
 
             track.Dispose();
+        }
+
+        private string CorrectSemicolonSpacing(string input)
+        {
+            // Split the input by ';', trim each part, and join them back with "; "
+            var parts = input.Split(';').Select(part => part.Trim()).ToArray();
+            return string.Join("; ", parts);
         }
 
         private string CreateDirectoryPath(string trackPath)
@@ -181,8 +193,9 @@ namespace MP3_Organizer
                 album = album.Replace(c.ToString(), "");
             }
 
-            performer = TextInfo.ToTitleCase(performer.ToLower()).Replace("/", "-").Replace("?", "").Replace(":", "");
-            album = TextInfo.ToTitleCase(album.ToLower()).Replace("/", "-").Replace("?", "").Replace(":", "");
+            // Remove additional unwanted characters from performer and album
+            performer = performer.Replace("/", "-").Replace("?", "").Replace(":", "");
+            album = album.Replace("/", "-").Replace("?", "").Replace(":", "");
 
             StringBuilder builder = new StringBuilder();
 
@@ -213,7 +226,7 @@ namespace MP3_Organizer
                 title = title.Replace(c.ToString(), "");
             }
 
-            title = TextInfo.ToTitleCase(title.ToLower());
+            title = title.Replace("/", "-").Replace("?", "").Replace(":", "");
 
             StringBuilder builder = new StringBuilder();
 
