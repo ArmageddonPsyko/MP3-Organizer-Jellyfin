@@ -1,0 +1,9 @@
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\bin\Debug\MP3-Organizer.exe.config
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\bin\Debug\MP3-Organizer.exe
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\bin\Debug\MP3-Organizer.pdb
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\bin\Debug\taglib-sharp.dll
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\obj\x86\Debug\MP3-Organizer.csproj.AssemblyReference.cache
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\obj\x86\Debug\MP3-Organizer.csproj.CoreCompileInputs.cache
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\obj\x86\Debug\MP3-Orga.CBA2EC87.Up2Date
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\obj\x86\Debug\MP3-Organizer.exe
+C:\Users\Philipp\Source\Repos\MP3-Organizer-Jellyfin\MP3-Organizer\obj\x86\Debug\MP3-Organizer.pdb
