@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -129,13 +129,13 @@ namespace MP3_Organizer
                 }
             }
 
-            // Update Album
-            if (!string.IsNullOrEmpty(track.Tag.Album))
+            // Update Album Artist
+            if (track.Tag.FirstAlbumArtist != null)
             {
-                string album = track.Tag.Album;
-                if (album.Contains(","))
+                string albumArtist = track.Tag.FirstAlbumArtist;
+                if (albumArtist.Contains(","))
                 {
-                    track.Tag.Album = album.Replace(",", ";");
+                    track.Tag.AlbumArtists = new string[] { albumArtist.Replace(",", ";") };
                     hasChanges = true;
                 }
             }
