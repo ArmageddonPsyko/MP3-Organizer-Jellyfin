@@ -74,28 +74,45 @@ namespace MP3_Organizer
 
             foreach (string file in Files)
             {
-                // Update the metadata
-                UpdateMetadata(file);
-
-                // Create file path and name
-                string destFilePath = CreateDirectoryPath(file);
-                string destFileName = CreateFilePath(file);
-
-                // Check if directory exists, otherwise create it
-                if (!System.IO.Directory.Exists(Destination + destFilePath))
+                try
                 {
-                    System.IO.Directory.CreateDirectory(Destination + destFilePath);
+                    // Ensure the source file exists
+                    if (!System.IO.File.Exists(file))
+                    {
+                        Console.WriteLine($"Source file does not exist: {file}");
+                        continue;
+                    }
+
+                    // Update the metadata
+                    UpdateMetadata(file);
+
+                    // Create file path and name
+                    string destFilePath = CreateDirectoryPath(file);
+                    string destFileName = CreateFilePath(file);
+
+                    // Full directory path
+                    string fullDirectoryPath = Destination + destFilePath;
+
+                    // Ensure the destination directory exists
+                    if (!System.IO.Directory.Exists(fullDirectoryPath))
+                    {
+                        System.IO.Directory.CreateDirectory(fullDirectoryPath);
+                    }
+
+                    // Create full file path
+                    string fullPath = fullDirectoryPath + destFileName;
+
+                    Console.WriteLine(fullPath);
+
+                    // Check if file exists, otherwise copy file to new location
+                    if (!System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Copy(file, fullPath);
+                    }
                 }
-
-                // Create full file path
-                string fullPath = Destination + destFilePath + destFileName;
-
-                Console.WriteLine(fullPath);
-
-                // Check if file exists, otherwise copy file to new location
-                if (!System.IO.File.Exists(fullPath))
+                catch (Exception ex)
                 {
-                    System.IO.File.Copy(file, fullPath);
+                    Console.WriteLine($"Error processing file '{file}': {ex.Message}");
                 }
             }
         }
@@ -149,6 +166,8 @@ namespace MP3_Organizer
             if (hasChanges)
             {
                 track.Save();
+                Console.WriteLine($"Updated metadata: {trackPath}");
+
             }
 
             track.Dispose();
