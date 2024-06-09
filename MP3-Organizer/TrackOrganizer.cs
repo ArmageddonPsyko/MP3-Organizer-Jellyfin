@@ -76,13 +76,6 @@ namespace MP3_Organizer
             {
                 try
                 {
-                    // Ensure the source file exists
-                    if (!System.IO.File.Exists(file))
-                    {
-                        Console.WriteLine($"Source file does not exist: {file}");
-                        continue;
-                    }
-
                     // Update the metadata
                     UpdateMetadata(file);
 
@@ -90,29 +83,52 @@ namespace MP3_Organizer
                     string destFilePath = CreateDirectoryPath(file);
                     string destFileName = CreateFilePath(file);
 
-                    // Full directory path
-                    string fullDirectoryPath = Destination + destFilePath;
-
-                    // Ensure the destination directory exists
-                    if (!System.IO.Directory.Exists(fullDirectoryPath))
+                    // Check if directory exists, otherwise create it
+                    if (!System.IO.Directory.Exists(Destination + destFilePath))
                     {
-                        System.IO.Directory.CreateDirectory(fullDirectoryPath);
+                        System.IO.Directory.CreateDirectory(Destination + destFilePath);
                     }
 
                     // Create full file path
-                    string fullPath = fullDirectoryPath + destFileName;
+                    string fullPath = Destination + destFilePath + destFileName;
 
                     Console.WriteLine(fullPath);
 
                     // Check if file exists, otherwise copy file to new location
                     if (!System.IO.File.Exists(fullPath))
                     {
-                        System.IO.File.Copy(file, fullPath);
+                        bool copySuccess = false;
+                        int attempts = 0;
+                        int maxAttempts = 5;
+                        while (!copySuccess && attempts < maxAttempts)
+                        {
+                            try
+                            {
+                                System.IO.File.Copy(file, fullPath);
+                                copySuccess = true;
+                            }
+                            catch (IOException ioEx)
+                            {
+                                attempts++;
+                                Console.WriteLine($"Attempt {attempts} to copy {file} failed: {ioEx.Message}");
+                                System.Threading.Thread.Sleep(500); // wait a bit before retrying
+                            }
+                        }
+
+                        if (copySuccess)
+                        {
+                            // Delete the original file after copying
+                            System.IO.File.Delete(file);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Failed to copy {file} after {maxAttempts} attempts.");
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error processing file '{file}': {ex.Message}");
+                    Console.WriteLine($"Error processing file {file}: {ex.Message}");
                 }
             }
         }
@@ -138,24 +154,19 @@ namespace MP3_Organizer
             // Update Performers
             if (track.Tag.Performers.Length > 0)
             {
-                string[] performers = track.Tag.Performers;
-                for (int i = 0; i < performers.Length; i++)
+                string performers = string.Join(",", track.Tag.Performers);
+                if (performers.Contains(","))
                 {
-                    string correctedPerformer = CorrectSemicolonSpacing(performers[i]);
-                    if (performers[i] != correctedPerformer)
-                    {
-                        performers[i] = correctedPerformer;
-                        hasChanges = true;
-                    }
+                    track.Tag.Performers = performers.Replace(",", ";").Split(';');
+                    hasChanges = true;
                 }
-                track.Tag.Performers = performers;
             }
 
             // Update Album Artist
             if (track.Tag.FirstAlbumArtist != null)
             {
                 string albumArtist = track.Tag.FirstAlbumArtist;
-                string correctedAlbumArtist = CorrectSemicolonSpacing(albumArtist);
+                string correctedAlbumArtist = CorrectSemicolonSpacing(albumArtist.Replace(",", ";"));
                 if (albumArtist != correctedAlbumArtist)
                 {
                     track.Tag.AlbumArtists = new string[] { correctedAlbumArtist };
@@ -167,7 +178,6 @@ namespace MP3_Organizer
             {
                 track.Save();
                 Console.WriteLine($"Updated metadata: {trackPath}");
-
             }
 
             track.Dispose();
@@ -189,7 +199,7 @@ namespace MP3_Organizer
                 throw new Exception(string.Format("This track seems to be invalid and can't be read ({0})", trackPath));
             }
 
-            if (track.Tag.Performers == null)
+            if (track.Tag.AlbumArtists == null)
             {
                 throw new Exception(string.Format("This track contains no artist information ({0})", trackPath));
             }
@@ -200,7 +210,8 @@ namespace MP3_Organizer
             }
 
             string invalid = new string(System.IO.Path.GetInvalidPathChars());
-            string performer = track.Tag.Performers[0]; // Use only the first artist
+            string correctedPerformer = CorrectSemicolonSpacing(track.Tag.AlbumArtists[0].Replace(",", ";"));
+            string performer = correctedPerformer.Split(';')[0].Trim(); // Use only the first artist
 
             string album = track.Tag.Album;
 
@@ -212,9 +223,8 @@ namespace MP3_Organizer
                 album = album.Replace(c.ToString(), "");
             }
 
-            // Remove additional unwanted characters from performer and album
-            performer = performer.Replace("/", "-").Replace("?", "").Replace(":", "");
-            album = album.Replace("/", "-").Replace("?", "").Replace(":", "");
+            performer = TextInfo.ToTitleCase(performer.ToLower()).Replace("/", "-").Replace("?", "").Replace(":", "");
+            album = TextInfo.ToTitleCase(album.ToLower()).Replace("/", "-").Replace("?", "").Replace(":", "");
 
             StringBuilder builder = new StringBuilder();
 
@@ -245,7 +255,7 @@ namespace MP3_Organizer
                 title = title.Replace(c.ToString(), "");
             }
 
-            title = title.Replace("/", "-").Replace("?", "").Replace(":", "");
+            title = TextInfo.ToTitleCase(title.ToLower());
 
             StringBuilder builder = new StringBuilder();
 
