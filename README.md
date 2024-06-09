@@ -14,6 +14,6 @@ Only the first artist is used for the artist folder name, as Jellyfin will autom
 **Valid ID3 information is required for this to work.**
 
 Original Code by bluser86
-https://pages.github.com/](https://github.com/bluser86/MP3-Organizer
+https://github.com/bluser86/MP3-Organizer
 
 Code modified for Jellyfin by ArmageddonPsyko
