@@ -13,6 +13,11 @@ Only the first artist is used for the artist folder name, as Jellyfin will autom
 
 **Valid ID3 information is required for this to work.**
 
+
+
+Known Bugs/Flaws:
+-Artist names with commas will also be changed (e.g., Earth, Wind & Fire), but due to the small chance of that happening, you can change the artist folder manually. This will be fixed in later versions.
+    
 Original Code by bluser86
 https://github.com/bluser86/MP3-Organizer
 
